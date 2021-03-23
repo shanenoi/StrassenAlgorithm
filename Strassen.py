@@ -17,6 +17,8 @@ def shape(array:list) -> list:
 def split_block(block:list) -> list:
     if len(shape(block)) == 1:
         return block
+    elif shape(block) == [2, 2]:
+        return block[0] + block[1]
 
     vertical_len = len(block[0])
     horizontal_len = len(block)
@@ -53,45 +55,31 @@ def strassen(block1:list, block2:list) -> None:
     a11, a12, a21, a22 = split_block(block1)
     b11, b12, b21, b22 = split_block(block2)
 
-    print(a11, a12, a21, a22)
-    print(b11, b12, b21, b22)
-
     m1 = strassen(concat(a11, a22), concat(b11, b22))
     m2 = strassen(concat(a21, a22), b11)
     m3 = strassen(a11, concat(b12, b22, block2_prefix = -1))
     m4 = strassen(a22, concat(b21, b11, block2_prefix = -1))
     m5 = strassen(concat(a11, a12), b22)
-    m6 = strassen(concat(a12, a11, block2_prefix = -1), concat(b11, b12))
-    m7 = strassen(concat(a11, a22, block2_prefix = -1), concat(b21, b22))
+    m6 = strassen(concat(a21, a11, block2_prefix = -1), concat(b11, b12))
+    m7 = strassen(concat(a12, a22, block2_prefix = -1), concat(b21, b22))
 
+    return [[
+            concat(concat(m1, m4), concat(m5, m7, block1_prefix = -1)),
+            concat(m3, m5)
+        ], [
+            concat(m2, m4),
+            concat(concat(m1, m2, block2_prefix = -1), concat(m3, m6))
+    ]]
 
-def test_concat() -> None:
-    assert(concat([1], [2]) == [3])
-    assert(concat([2], [2], block2_prefix = -1) == [0])
-
-def test_shape() -> None:
-    assert(shape([1, 2]) == [2])
-    assert(shape([[1], [1]]) == [2, 1])
-
-def test_strassen() -> None:
-    assert(strassen(1,2))
 
 
 def main():
-    # a = [
-    #         [0,1,2,3,  4,5,6,7],
-    #         [8,9,4,2,  5,7,1,7],
+    a = [ [0,7],
+          [8,7] ]
 
-    #         [3,2,1,0,  7,6,5,4],
-    #         [7,6,5,4,  3,2,1,0],
-    # ]
-
-    a = [
-            [0,7],
-            [8,7]
-    ]
-    print()
-    strassen(a, a)
+    b = [ [1,7],
+          [8,5] ]
+    print(strassen(a, b))
 
 
 if __name__ == '__main__':
